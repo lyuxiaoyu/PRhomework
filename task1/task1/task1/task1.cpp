@@ -11,10 +11,76 @@
 using namespace cv;
 
 const int backgroundConnectedArea = 1000;
-const int clusterConnectedArea = 1000;
+const int clusterConnectedArea = 500;
+
+void loadDataAsImg(Mat &img, char* fileName);
+void fillLittleBackground(Mat &img, Mat &imgDst);
+void markClusterArea(Mat &imgTmp, Mat &imgLabels);
+void markCluster(Mat &imgSrc, Mat &imgDst, Mat &imgLabels);
+int nearestLabel(int row, int col, Mat &imgLabels);
 
 
-void loadDataAsImg(Mat &img, char* fileName) 
+int main()
+{
+	Mat imgSrc, imgTmp, imgDst;
+
+
+	// 读取数据，转化为图片
+	loadDataAsImg(imgSrc, "source/julei2.txt");
+	int rows = imgSrc.rows;
+	int cols = imgSrc.cols;
+
+	// 背景为白色
+	imgTmp = 255 - imgSrc;
+
+	// 腐蚀背景
+	int elementSize;
+	Mat element;//自定义核
+	elementSize = 1;
+	element = getStructuringElement(MORPH_RECT, Size(2 * elementSize + 1, 2 * elementSize + 1), Point(elementSize, elementSize));
+	erode(imgTmp, imgTmp, element);
+
+	// 填充小块背景
+	fillLittleBackground(imgTmp, imgTmp);
+
+	// 膨胀背景
+	elementSize = 6;
+	element = getStructuringElement(MORPH_RECT, Size(2 * elementSize + 1, 2 * elementSize + 1), Point(elementSize, elementSize));
+	dilate(imgTmp, imgTmp, element);
+	elementSize = 1;
+	element = getStructuringElement(MORPH_RECT, Size(2 * elementSize + 1, 2 * elementSize + 1), Point(elementSize, elementSize));
+	dilate(imgTmp, imgTmp, element);
+
+
+	// 标记点为白色
+	imgTmp = 255 - imgTmp;
+
+	// 形成大致的聚类区域
+	Mat imgLabels;
+	markClusterArea(imgTmp, imgLabels);
+
+	// 生成最终图像
+	markCluster(imgSrc, imgDst,imgLabels);
+
+	// 生成最终图像显示版本
+
+
+	// 显示
+	namedWindow("soucre");
+	imshow("soucre", imgSrc);
+
+	namedWindow("test");
+	imshow("test", imgLabels * 5000);
+
+	namedWindow("dst");
+	imshow("dst", imgDst * 20);
+
+	waitKey(0);
+
+    return 0;
+}
+
+void loadDataAsImg(Mat &img, char* fileName)
 {
 	int row, col;
 	int rowMax = 0, colMax = 0;
@@ -30,7 +96,7 @@ void loadDataAsImg(Mat &img, char* fileName)
 	fr.clear();
 	fr.seekg(0, std::ios::beg);
 
-	img.create(rowMax+1, colMax+1, CV_8UC1);
+	img.create(rowMax + 1, colMax + 1, CV_8UC1);
 	img.setTo(Scalar(0));
 
 	while (!fr.eof())
@@ -161,66 +227,9 @@ void markCluster(Mat &imgSrc, Mat &imgDst, Mat &imgLabels)
 		{
 			if (255 == imgData[j])
 			{
-				if (0 != imgLabelsData[j] ) imgData[j] = uchar(imgLabelsData[j]);
+				if (0 != imgLabelsData[j]) imgData[j] = uchar(imgLabelsData[j]);
 				else imgData[j] = uchar(nearestLabel(i, j, imgLabels));
 			}
 		}
 	}
 }
-
-
-int main()
-{
-	Mat imgSrc, imgTmp, imgDst;
-	int elementSize;
-	Mat element;//自定义核
-
-	// 读取数据，转化为图片
-	loadDataAsImg(imgSrc, "source/julei2.txt");
-	int rows = imgSrc.rows;
-	int cols = imgSrc.cols;
-
-	// 背景为白色
-	imgTmp = 255 - imgSrc;
-
-	// 腐蚀背景
-	elementSize = 1;
-	element = getStructuringElement(MORPH_RECT, Size(2 * elementSize + 1, 2 * elementSize + 1), Point(elementSize, elementSize));
-	erode(imgTmp, imgTmp, element);
-
-	// 填充小块背景
-	fillLittleBackground(imgTmp, imgTmp);
-
-	// 膨胀背景
-	elementSize = 4;
-	element = getStructuringElement(MORPH_RECT, Size(2 * elementSize + 1, 2 * elementSize + 1), Point(elementSize, elementSize));
-	dilate(imgTmp, imgTmp, element);
-
-	// 标记点为白色
-	imgTmp = 255 - imgTmp;
-
-	// 形成大致的聚类区域
-	Mat imgLabels;
-	markClusterArea(imgTmp, imgLabels);
-
-	// 生成最终图像
-	markCluster(imgSrc, imgDst,imgLabels);
-
-	// 生成最终图像显示版本
-
-
-	// 显示
-	namedWindow("soucre");
-	imshow("soucre", imgSrc);
-
-	namedWindow("test");
-	imshow("test", imgLabels * 5000);
-
-	namedWindow("dst");
-	imshow("dst", imgDst * 20);
-
-	waitKey(0);
-
-    return 0;
-}
-
