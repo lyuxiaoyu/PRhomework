@@ -1,0 +1,9 @@
+﻿  stdafx.cpp
+d:\working\patternrecognition\tasks\task1\task1\task1\stdafx.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+d:\working\patternrecognition\tasks\task1\task1\task1\stdafx.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+d:\working\patternrecognition\tasks\task1\task1\task1\targetver.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+  task1.cpp
+d:\working\patternrecognition\tasks\task1\task1\task1\task1.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+d:\working\patternrecognition\tasks\task1\task1\task1\task1.cpp(10): error C2039: “cout”: 不是“std”的成员
+  d:\working\patternrecognition\tasks\task1\task1\task1\predefined c++ types (compiler internal)(208): note: 参见“std”的声明
+d:\working\patternrecognition\tasks\task1\task1\task1\task1.cpp(10): error C2065: “cout”: 未声明的标识符
