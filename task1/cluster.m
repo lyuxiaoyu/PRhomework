@@ -1,7 +1,7 @@
 clc
 clear
 
-filename = 'julei1.txt';
+filename = 'julei2.txt';
 format = '%d%d';
 [x, y] = textread(filename, format);
 
