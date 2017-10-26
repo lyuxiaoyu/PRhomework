@@ -57,21 +57,35 @@ subplot(2, 5, 6)
 imshow(img);
 title('高斯滤波');
 
+
+
 % 只保留极端信息
-img((img < 200) & (img > 50)) = 128;
+img((img < 220) & (img > 35)) = 128;
 
 subplot(2, 5, 7)
 imshow(img);
 title('只保留极端信息');
 
-% 滤波
-h = fspecial('average', [3, 3]);      %各类线性滤波
-img = imfilter(img,h,'replicate'); 
 
+% 膨胀腐蚀，进一步去除杂质
+img1 = imerode(img, ones([5,5]));
+img1 = imdilate(img1, ones([5,5]));
+img1 = imdilate(img1, ones([3,3]));
+img1 = imerode(img1, ones([3,3]));
+
+img2 = imdilate(img, ones([5,5]));
+img2 = imerode(img2, ones([5,5]));
+img2 = imerode(img2, ones([3,3]));
+img2 = imdilate(img2, ones([3,3]));
+
+area = img1 > 100 &  img2 > 150;
+img1(area) = img2(area);
+img = img1;
 subplot(2, 5, 8)
 imshow(img);
-title('滤波');
+title('膨胀腐蚀');
 
+% 最终结果
 subplot(2, 5, 9)
 imshow(gray2rgb(img));
 title('伪彩色显示');
