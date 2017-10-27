@@ -26,7 +26,7 @@ int main()
 
 
 	// 读取数据，转化为图片
-	loadDataAsImg(imgSrc, "source/julei2.txt");
+	loadDataAsImg(imgSrc, "source/julei1.txt");
 	int rows = imgSrc.rows;
 	int cols = imgSrc.cols;
 
