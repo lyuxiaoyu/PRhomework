@@ -44,16 +44,68 @@ def compare(imgPad, padSize, step):
                 compareCol = int(k * step + remainder + 0.5);
                 
             imgCompare[currRow, currCol] = tmpSum / k;
-        print(currCol);
+        if(currCol % 50 == 0):
+            print(currCol, '/', cols);
 
     return imgCompare.astype(uint8);
+
+def getBestStep(img):
+    rows,cols = img.shape;
+    stepMax = cols // 2;
+    stepMin = cols // 30;
+    minRecordsNum = (stepMax - stepMin)//40;
+    testRows = range(1, rows, 3);
+
+    img = img.astype('int32');
+
+    record = zeros(stepMax - stepMin);
+    for step in range(stepMin, stepMax):
+        iterMax = cols // step;
+        count = (iterMax - 1) * step;
+        compareBase = img[testRows, 0:step];
+        total = 0;
+        for iter in range(1, iterMax):
+            total += abs(img[testRows, step * iter: step * iter + step] - compareBase).sum();
+        record[step - stepMin] = total / count;
+
+    minRecords = argsort(record)[0: minRecordsNum] + stepMin;
+    print(minRecords);
+    minRecords.sort();
+    print(minRecords);
+    diffArr = minRecords[1:]-minRecords[:-1];
+    print(diffArr);
+    diff = diffArr[diffArr > stepMin].mean();
+    step = minRecords.sum() / (minRecords // diff).sum();
+    print('step = ', step);
+    
+    #显示图像
+    try:
+        '''
+        print('close figure 1 to continue....')
+        plt.plot(range(stepMin, stepMax), record);
+        plt.show();
+
+        stepManual = float(input('Is ok? \nIf your answer is yes, input number 1,\nor input the step value you caculate:\n'));
+        if (stepManual > stepMin) & (stepManual < stepMax):
+            step = stepManual;
+            print('step = ', step);
+        else:
+            print('\nyes...');
+        '''
+    finally:
+        plt.figure(1);
+        plt.plot(range(stepMin, stepMax), record);
+        return step;
     
 if __name__ == '__main__':
     padSize = 1;
-    step = 83.4;
     threshold = 40; # 可改进为自动
 
     img = cv.imread('img1.png', 0);
+
+    step = getBestStep(img);
+
+
     imgPad = imagePadding(img, padSize);
     imgCompare = compare(imgPad, padSize, step);
 
@@ -69,6 +121,7 @@ if __name__ == '__main__':
     # hist_cv = cv.calcHist([imgCompare],[0],None,[256],[0,256]);
     # plt.plot(hist_cv);
 
+    plt.figure(2);
     plt.subplot(131),plt.imshow(img, 'gray');
     plt.subplot(132),plt.imshow(imgCompare,'gray');
     plt.subplot(133),plt.imshow(imgResult);
