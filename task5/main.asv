@@ -30,16 +30,17 @@ subplot(2, 5, 3)
 imshow(img);
 title('灰度图');
 
-% 自定义滤波，除去光线影响
-pw = 28;
+% 局部滤波，除去光线影响，用户定义滤波
+pw = 30;
 imgTmp = double(padarray(img, [pw, pw], 'replicate'));
-imgTmp = imgTmp - filter2(fspecial('average', pw * 2 + 1),imgTmp) + 128;
-imgTmp = imgTmp(1+pw: rows+pw, 1+pw: cols+pw);
-img = uint8(imgTmp);
+imgTmp = imgTmp - filter2(fspecial('average', pw * 2 + 1),imgTmp);
+
+% imgTmp = colfilt(imgTmp, [pw+1, pw+1], 'sliding', @colfiltfunc);
+img = imgTmp(1+pw: rows+pw, 1+pw: cols+pw);
 
 subplot(2, 5, 4)
 imshow(img);
-title('自定义滤波');
+title('局部滤波');
 
 % 直方图均衡化
 img = histeq(img);
